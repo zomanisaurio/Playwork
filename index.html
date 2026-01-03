@@ -178,6 +178,17 @@
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
+        // --- CORRECTION LIEN JEU ---
+        window.openGame = (url) => {
+            if (!url) return alert("Lien invalide");
+            // Ajoute https:// si l'utilisateur l'a oublié
+            let finalUrl = url.trim();
+            if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+                finalUrl = 'https://' + finalUrl;
+            }
+            window.open(finalUrl, '_blank');
+        };
+
         // --- COMPTE ---
         window.saveProfile = () => {
             localStorage.setItem('z_name', document.getElementById('uName').value);
@@ -209,12 +220,12 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'studio_project.json'; a.click();
         };
         window.importStudio = (e) => {
-            const reader = new FileReader();
-            reader.onload = (ev) => { document.getElementById('codeEditor').value = JSON.parse(ev.target.result).code; runCode(); };
-            reader.readAsText(e.target.files[0]);
+            const r = new FileReader();
+            r.onload = (ev) => { document.getElementById('codeEditor').value = JSON.parse(ev.target.result).code; runCode(); };
+            r.readAsText(e.target.files[0]);
         };
 
-        // --- NAVIGATION & FORUM LOCK ---
+        // --- NAVIGATION & FORUM ---
         window.showSection = (s) => {
             document.getElementById('sectionGames').classList.toggle('hidden', s !== 'games');
             document.getElementById('sectionForums').classList.toggle('hidden', s !== 'forums');
@@ -263,7 +274,6 @@
         window.renderGames = () => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const term = document.getElementById('gameSearch').value.toLowerCase();
-
             let list = allGames.filter(g => g.title.toLowerCase().includes(term));
             
             if(currentSort === 'recent') list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
@@ -275,7 +285,7 @@
                 grid.innerHTML += `
                     <div class="game-card">
                         <div class="age-badge">${g.age}+</div>
-                        <img src="${g.img}" class="game-thumb" onclick="window.open('${g.link}')">
+                        <img src="${g.img}" class="game-thumb" onclick="openGame('${g.link}')">
                         <div style="padding:15px">
                             <h3>${g.title}</h3>
                             <p style="font-size:0.8rem; opacity:0.6">@${g.dev}</p>

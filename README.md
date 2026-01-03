@@ -26,7 +26,4 @@ Welcome to **Zomani Store**, a community platform for sharing web games and appl
 
 ## 📜 License
 
-This project is licensed under the **MIT License**. You are free to use, modify, and share it!
-
----
-*Created with passion for the Zomani community.*
+**Personal Use Only.** This project is provided for private use and learning. You may modify it for your own personal use, but redistribution or any commercial use is strictly prohibited.

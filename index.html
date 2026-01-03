@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zomani Playwork</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6c5ce7; --secondary: #a29bfe; --accent: #fd79a8;
+            --bg: #0f0c29; --card-bg: #1e1b4b; --text: #ffffff;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: radial-gradient(circle at top, #1e1b4b, #0f0c29); color: var(--text); min-height: 100vh; }
+
+        header { padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+        /* Barre de Recherche */
+        .search-container { margin-bottom: 2rem; }
+        .search-bar { width: 100%; padding: 1rem 1.5rem; border-radius: 50px; border: 1px solid var(--glass); background: var(--glass); color: white; font-size: 1rem; outline: none; transition: 0.3s; }
+        .search-bar:focus { border-color: var(--primary); background: rgba(255,255,255,0.15); }
+
+        /* Onglets */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; }
+        .tab-btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+
+        /* Grille de jeux */
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .game-card { background: var(--card-bg); border-radius: 24px; overflow: hidden; transition: 0.4s; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .game-card:hover { transform: translateY(-10px); border-color: var(--accent); }
+        .game-thumb { width: 100%; height: 180px; object-fit: cover; cursor: pointer; }
+        .game-info { padding: 1.2rem; }
+        
+        .age-badge { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; background: #2ecc71; z-index: 2; }
+        
+        /* Boutons */
+        .btn { cursor: pointer; border: none; padding: 0.7rem 1.4rem; border-radius: 12px; font-weight: 600; transition: 0.3s; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-outline { background: var(--glass); color: white; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #1e1b4b; padding: 2.2rem; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
+        input, textarea, select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 12px; color: white; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="location.reload()">ZOMANI PLAYWORK</div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-outline" onclick="openModal('profileModal')">👤 Profil</button>
+            <button class="btn btn-accent" onclick="openModal('gameModal')">🚀 Publier</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Rechercher un jeu..." oninput="filterGames()">
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tabRecent" onclick="switchTab('recent')">✨ Récents</button>
+            <button class="tab-btn" id="tabPopular" onclick="switchTab('popular')">🔥 Populaires</button>
+        </div>
+
+        <div class="game-grid" id="gameGrid">Chargement...</div>
+    </div>
+
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h2>Mon Profil</h2>
+            <label>Pseudo :</label>
+            <input type="text" id="userPseudo">
+            <label>Âge :</label>
+            <input type="number" id="userAge" value="13">
+            <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="saveProfile()">Enregistrer</button>
+            <hr style="margin:20px 0; opacity:0.1">
+            <button class="btn btn-outline" style="width:100%" onclick="exportAccount()">📤 Exporter JSON</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="document.getElementById('importInput').click()">📥 Importer JSON</button>
+            <input type="file" id="importInput" style="display:none" onchange="importAccount(event)">
+            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('profileModal')">Fermer</button>
+        </div>
+    </div>
+
+    <div class="modal" id="gameModal">
+        <div class="modal-content">
+            <h2>Publier un jeu</h2>
+            <form id="gameForm">
+                <input type="text" id="gameTitle" placeholder="Titre" required>
+                <textarea id="gameDesc" rows="3" placeholder="Description" required></textarea>
+                <select id="gameAge">
+                    <option value="3">PEGI 3</option><option value="7">PEGI 7</option>
+                    <option value="12">PEGI 12</option><option value="16">PEGI 16</option>
+                    <option value="18">PEGI 18</option>
+                </select>
+                <input type="url" id="gameImg" placeholder="Image URL" required>
+                <input type="url" id="gamePlay" placeholder="Lien du jeu">
+                <button type="submit" id="submitBtn" class="btn btn-accent" style="width:100%; margin-top:15px">Mettre en ligne</button>
+            </form>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('gameModal')">Annuler</button>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal"><div class="modal-content" id="detailContent"></div></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, orderBy, query, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVs5gJZYYNTahlF6crapkvdiwTcIljFI4",
+            authDomain: "zomanistore-93a70.firebaseapp.com",
+            projectId: "zomanistore-93a70",
+            storageBucket: "zomanistore-93a70.appspot.com",
+            messagingSenderId: "108210695912",
+            appId: "1:108210695912:web:d2b630526bcc97f455a35d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let allGames = [];
+        let currentSort = 'recent';
+
+        // --- BASIQUES ---
+        window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+        window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+
+        // --- PROFIL ---
+        window.saveProfile = () => {
+            localStorage.setItem('z_name', document.getElementById('userPseudo').value);
+            localStorage.setItem('z_age', document.getElementById('userAge').value);
+            alert("Profil sauvé !"); location.reload();
+        };
+
+        window.exportAccount = () => {
+            const d = { n: localStorage.getItem('z_name'), a: localStorage.getItem('z_age') };
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(d)], {type:'application/json'}));
+            a.download = 'zomani_save.json'; a.click();
+        };
+
+        window.importAccount = (e) => {
+            const r = new FileReader();
+            r.onload = (ev) => {
+                const d = JSON.parse(ev.target.result);
+                localStorage.setItem('z_name', d.n); localStorage.setItem('z_age', d.a);
+                location.reload();
+            };
+            r.readAsText(e.target.files[0]);
+        };
+
+        // --- PUBLIER ---
+        document.getElementById('gameForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const user = localStorage.getItem('z_name');
+            if(!user) return alert("⚠️ Pseudo requis dans Profil !");
+            
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "⏳ Publication..."; btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "games"), {
+                    title: document.getElementById('gameTitle').value,
+                    desc: document.getElementById('gameDesc').value,
+                    age: document.getElementById('gameAge').value,
+                    img: document.getElementById('gameImg').value,
+                    play: document.getElementById('gamePlay').value,
+                    dev: user, likes: 0, createdAt: new Date()
+                });
+                alert("✅ Jeu publié !"); location.reload();
+            } catch (err) {
+                alert("Erreur ! Vérifie tes règles Firebase.");
+                btn.innerText = "Réessayer"; btn.disabled = false;
+            }
+        };
+
+        // --- MOTEUR ---
+        window.loadGames = async () => {
+            const snap = await getDocs(query(collection(db, "games"), orderBy("createdAt", "desc")));
+            allGames = []; snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
+            sortAndRender();
+        };
+
+        window.switchTab = (t) => {
+            currentSort = t;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(t === 'recent' ? 'tabRecent' : 'tabPopular').classList.add('active');
+            sortAndRender();
+        };
+
+        window.filterGames = () => sortAndRender();
+
+        const sortAndRender = () => {
+            let list = [...allGames];
+            const term = document.getElementById('searchBar').value.toLowerCase();
+            if(term) list = list.filter(g => g.title.toLowerCase().includes(term));
+
+            if(currentSort === 'recent') list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            else list.sort((a,b) => (b.likes || 0) - (a.likes || 0));
+
+            renderGames(list);
+        };
+
+        window.renderGames = (list) => {
+            const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
+            const myAge = parseInt(localStorage.getItem('z_age')) || 13;
+            list.forEach(g => {
+                if(myAge < parseInt(g.age)) return;
+                grid.innerHTML += `
+                    <div class="game-card">
+                        <div class="age-badge">${g.age}+</div>
+                        <img src="${g.img}" class="game-thumb" onclick="showDetails('${g.id}')">
+                        <div class="game-info">
+                            <h3>${g.title}</h3>
+                            <p style="font-size:0.8rem; opacity:0.6">@${g.dev} | ❤️ ${g.likes || 0}</p>
+                        </div>
+                    </div>`;
+            });
+        };
+
+        window.showDetails = (id) => {
+            const g = allGames.find(x => x.id === id);
+            document.getElementById('detailContent').innerHTML = `
+                <img src="${g.img}" style="width:100%; border-radius:15px; margin-bottom:15px">
+                <h2>${g.title}</h2>
+                <p style="margin:10px 0; opacity:0.8">${g.desc}</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px">
+                    <a href="${g.play}" target="_blank" class="btn btn-accent">🎮 JOUER</a>
+                    <div style="cursor:pointer; font-size:1.2rem" onclick="likeGame('${g.id}')">❤️ ${g.likes || 0}</div>
+                </div>
+                <button class="btn btn-outline" style="width:100%; margin-top:15px" onclick="closeModal('detailModal')">Fermer</button>`;
+            openModal('detailModal');
+        };
+
+        window.likeGame = async (id) => {
+            if(localStorage.getItem('liked_'+id)) return alert("Déjà liké !");
+            await updateDoc(doc(db, "games", id), { likes: increment(1) });
+            localStorage.setItem('liked_'+id, "true");
+            location.reload();
+        };
+
+        document.getElementById('userPseudo').value = localStorage.getItem('z_name') || "";
+        document.getElementById('userAge').value = localStorage.getItem('z_age') || 13;
+        loadGames();
+    </script>
+</body>
+</html>

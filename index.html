@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zomani Store | Officiel</title>
+    <title>Zomani Playwork | Officiel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,83 +13,86 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: radial-gradient(circle at top, #1e1b4b, #0f0c29); color: var(--text); min-height: 100vh; }
+        body { font-family: 'Poppins', sans-serif; background: radial-gradient(circle at top, #1e1b4b, #0f0c29); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-        header { padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.8rem; font-weight: 800; background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        header { padding: 1.2rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 
-        /* Barre de Recherche */
-        .search-container { margin-bottom: 2rem; }
-        .search-bar { width: 100%; padding: 1rem 1.5rem; border-radius: 50px; border: 1px solid var(--glass); background: var(--glass); color: white; font-size: 1rem; outline: none; transition: 0.3s; }
-        .search-bar:focus { border-color: var(--primary); background: rgba(255,255,255,0.15); }
+        /* Navigation */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem; }
+        .tab-btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 20px; border-radius: 30px; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
 
-        /* Onglets */
-        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; }
-        .tab-btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .tab-btn.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
-
-        /* Grille de jeux */
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-        .game-card { background: var(--card-bg); border-radius: 24px; overflow: hidden; transition: 0.4s; border: 1px solid rgba(255,255,255,0.05); position: relative; }
-        .game-card:hover { transform: translateY(-10px); border-color: var(--accent); }
-        .game-thumb { width: 100%; height: 180px; object-fit: cover; cursor: pointer; }
-        .game-info { padding: 1.2rem; }
-        
-        .age-badge { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; background: #2ecc71; z-index: 2; }
+        /* Grilles */
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .game-card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; position: relative; }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .game-thumb { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
         
         /* Boutons */
-        .btn { cursor: pointer; border: none; padding: 0.7rem 1.4rem; border-radius: 12px; font-weight: 600; transition: 0.3s; font-family: inherit; }
+        .btn { cursor: pointer; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 600; transition: 0.2s; font-family: inherit; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-accent { background: var(--accent); color: white; }
         .btn-outline { background: var(--glass); color: white; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-danger { background: #ff4757; color: white; }
 
         /* Modals */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: #1e1b4b; padding: 2.2rem; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
-        input, textarea, select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 12px; color: white; margin-top: 8px; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: #1e1b4b; padding: 2rem; border-radius: 25px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         
-        .report-link { color: #ff7675; font-size: 0.8rem; text-decoration: none; cursor: pointer; opacity: 0.6; transition: 0.3s; }
-        .report-link:hover { opacity: 1; text-decoration: underline; }
+        /* Studio Layout */
+        #studioContent { max-width: 98%; width: 98%; height: 95vh; display: flex; flex-direction: column; }
+        .editor-container { display: flex; flex: 1; gap: 10px; margin: 15px 0; min-height: 0; }
+        #codeEditor { flex: 1; background: #050510; color: #00ffaa; font-family: monospace; padding: 15px; border-radius: 10px; border: 1px solid var(--primary); resize: none; }
+        #previewFrame { flex: 1; background: white; border-radius: 10px; border: none; }
+
+        input, textarea, select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 10px; color: white; margin-top: 8px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo" onclick="location.reload()">ZOMANI</div>
-        <div style="display:flex; gap:10px;">
-            <button class="btn btn-outline" onclick="openModal('profileModal')">👤 Profil</button>
+        <div class="logo" onclick="location.reload()">ZOMANI PLAYWORK</div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline" onclick="openModal('studioModal')">🛠️ Studio</button>
             <button class="btn btn-accent" onclick="openModal('gameModal')">🚀 Publier</button>
+            <button class="btn btn-outline" onclick="openModal('profileModal')">👤</button>
         </div>
     </header>
 
     <div class="container">
-        <div class="search-container">
-            <input type="text" id="searchBar" class="search-bar" placeholder="Rechercher un jeu..." oninput="filterGames()">
-        </div>
-
         <div class="tabs">
-            <button class="tab-btn active" id="tabRecent" onclick="switchTab('recent')">✨ Récents</button>
-            <button class="tab-btn" id="tabPopular" onclick="switchTab('popular')">🔥 Populaires</button>
+            <button class="tab-btn active" id="btnGames" onclick="showSection('games')">🎮 Jeux</button>
+            <button class="tab-btn" id="btnForums" onclick="showSection('forums')">💬 Forums</button>
         </div>
 
-        <div class="game-grid" id="gameGrid">Chargement...</div>
+        <div id="sectionGames">
+            <div class="game-grid" id="gameGrid">Chargement des jeux...</div>
+        </div>
+
+        <div id="sectionForums" class="hidden">
+            <button class="btn btn-primary" style="margin-bottom:20px" onclick="openModal('forumModal')">📝 Nouveau sujet</button>
+            <div id="forumList">Chargement des discussions...</div>
+        </div>
     </div>
 
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <h2>Mon Profil</h2>
-            <label>Pseudo :</label>
-            <input type="text" id="userPseudo">
-            <label>Âge :</label>
-            <input type="number" id="userAge" value="13">
-            <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="saveProfile()">Enregistrer</button>
-            <hr style="margin:20px 0; opacity:0.1">
-            <button class="btn btn-outline" style="width:100%" onclick="exportAccount()">📤 Exporter JSON</button>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="document.getElementById('importInput').click()">📥 Importer JSON</button>
-            <input type="file" id="importInput" style="display:none" onchange="importAccount(event)">
-            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('profileModal')">Fermer</button>
+    <div class="modal" id="studioModal">
+        <div class="modal-content" id="studioContent">
+            <h2>Zomani Studio 🛠️</h2>
+            <div class="editor-container">
+                <textarea id="codeEditor" placeholder=""></textarea>
+                <iframe id="previewFrame"></iframe>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-accent" onclick="runCode()">▶️ Tester</button>
+                <button class="btn btn-primary" onclick="exportJson()">💾 Sauver JSON</button>
+                <button class="btn btn-outline" onclick="document.getElementById('imp').click()">📥 Charger</button>
+                <input type="file" id="imp" hidden onchange="importJson(event)">
+                <button class="btn btn-outline" onclick="closeModal('studioModal')">Fermer</button>
+            </div>
         </div>
     </div>
 
@@ -97,26 +100,37 @@
         <div class="modal-content">
             <h2>Publier un jeu</h2>
             <form id="gameForm">
-                <input type="text" id="gameTitle" placeholder="Titre" required>
-                <textarea id="gameDesc" rows="3" placeholder="Description" required></textarea>
-                <select id="gameAge">
-                    <option value="3">PEGI 3</option><option value="7">PEGI 7</option>
-                    <option value="12">PEGI 12</option><option value="16">PEGI 16</option>
-                    <option value="18">PEGI 18</option>
-                </select>
-                <input type="url" id="gameImg" placeholder="Image URL" required>
-                <input type="url" id="gamePlay" placeholder="Lien du jeu">
-                <button type="submit" id="submitBtn" class="btn btn-accent" style="width:100%; margin-top:15px">Mettre en ligne</button>
+                <input type="text" id="gTitle" placeholder="Nom du jeu" required>
+                <textarea id="gDesc" placeholder="Description" required></textarea>
+                <input type="url" id="gImg" placeholder="Lien de l'image (URL)" required>
+                <input type="url" id="gLink" placeholder="Lien du jeu (URL)" required>
+                <button type="submit" class="btn btn-accent" style="width:100%; margin-top:15px">Mettre en ligne</button>
             </form>
             <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('gameModal')">Annuler</button>
         </div>
     </div>
 
-    <div class="modal" id="detailModal"><div class="modal-content" id="detailContent"></div></div>
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h2>Mon Profil</h2>
+            <input type="text" id="uName" placeholder="Ton pseudo">
+            <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="saveProfile()">Enregistrer</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('profileModal')">Fermer</button>
+        </div>
+    </div>
+
+    <div class="modal" id="forumModal">
+        <div class="modal-content">
+            <h2>Nouvelle Discussion</h2>
+            <input type="text" id="fTitle" placeholder="Titre">
+            <textarea id="fContent" placeholder="Message..."></textarea>
+            <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="publishPost()">Poster</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, orderBy, query, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, increment, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCVs5gJZYYNTahlF6crapkvdiwTcIljFI4",
@@ -129,151 +143,115 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let allGames = [];
-        let currentSort = 'recent';
+        const user = localStorage.getItem('z_name') || "Anonyme";
 
-        // --- BASIQUES ---
         window.openModal = (id) => document.getElementById(id).style.display = 'flex';
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-        window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
-        // --- PROFIL ---
-        window.saveProfile = () => {
-            localStorage.setItem('z_name', document.getElementById('userPseudo').value);
-            localStorage.setItem('z_age', document.getElementById('userAge').value);
-            alert("Profil sauvé !"); location.reload();
+        // --- STUDIO ---
+        window.runCode = () => {
+            const frame = document.getElementById('previewFrame').contentWindow.document;
+            frame.open(); frame.write(document.getElementById('codeEditor').value); frame.close();
         };
-
-        window.exportAccount = () => {
-            const d = { n: localStorage.getItem('z_name'), a: localStorage.getItem('z_age') };
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(d)], {type:'application/json'}));
-            a.download = 'zomani_save.json'; a.click();
+        window.exportJson = () => {
+            const blob = new Blob([JSON.stringify({code: document.getElementById('codeEditor').value})], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'game.json'; a.click();
         };
-
-        window.importAccount = (e) => {
+        window.importJson = (e) => {
             const r = new FileReader();
-            r.onload = (ev) => {
-                const d = JSON.parse(ev.target.result);
-                localStorage.setItem('z_name', d.n); localStorage.setItem('z_age', d.a);
-                location.reload();
-            };
+            r.onload = (ev) => { document.getElementById('codeEditor').value = JSON.parse(ev.target.result).code; runCode(); };
             r.readAsText(e.target.files[0]);
         };
 
-        // --- PUBLIER ---
+        // --- NAVIGATION ---
+        window.showSection = (s) => {
+            document.getElementById('sectionGames').classList.toggle('hidden', s !== 'games');
+            document.getElementById('sectionForums').classList.toggle('hidden', s !== 'forums');
+            document.getElementById('btnGames').classList.toggle('active', s === 'games');
+            document.getElementById('btnForums').classList.toggle('active', s === 'forums');
+            if(s === 'forums') loadPosts();
+        };
+
+        // --- FIREBASE JEUX ---
         document.getElementById('gameForm').onsubmit = async (e) => {
             e.preventDefault();
-            const user = localStorage.getItem('z_name');
-            if(!user) return alert("⚠️ Pseudo requis dans Profil !");
-            
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "⏳ Publication..."; btn.disabled = true;
-
-            try {
-                await addDoc(collection(db, "games"), {
-                    title: document.getElementById('gameTitle').value,
-                    desc: document.getElementById('gameDesc').value,
-                    age: document.getElementById('gameAge').value,
-                    img: document.getElementById('gameImg').value,
-                    play: document.getElementById('gamePlay').value,
-                    dev: user, likes: 0, createdAt: new Date()
-                });
-                alert("✅ Jeu publié !"); location.reload();
-            } catch (err) {
-                alert("Erreur ! Vérifie tes règles Firebase.");
-                btn.innerText = "Réessayer"; btn.disabled = false;
-            }
+            if(user === "Anonyme") return alert("Change ton pseudo dans ton profil !");
+            await addDoc(collection(db, "games"), {
+                title: document.getElementById('gTitle').value,
+                desc: document.getElementById('gDesc').value,
+                img: document.getElementById('gImg').value,
+                link: document.getElementById('gLink').value,
+                dev: user, likes: 0, createdAt: new Date()
+            });
+            location.reload();
         };
 
-        // --- MOTEUR ---
         window.loadGames = async () => {
             const snap = await getDocs(query(collection(db, "games"), orderBy("createdAt", "desc")));
-            allGames = []; snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
-            sortAndRender();
-        };
-
-        window.switchTab = (t) => {
-            currentSort = t;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(t === 'recent' ? 'tabRecent' : 'tabPopular').classList.add('active');
-            sortAndRender();
-        };
-
-        window.filterGames = () => sortAndRender();
-
-        const sortAndRender = () => {
-            let list = [...allGames];
-            const term = document.getElementById('searchBar').value.toLowerCase();
-            if(term) list = list.filter(g => g.title.toLowerCase().includes(term));
-
-            if(currentSort === 'recent') list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            else list.sort((a,b) => (b.likes || 0) - (a.likes || 0));
-
-            renderGames(list);
-        };
-
-        window.renderGames = (list) => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
-            const myAge = parseInt(localStorage.getItem('z_age')) || 13;
-            list.forEach(g => {
-                if(myAge < parseInt(g.age)) return;
+            snap.forEach(d => {
+                const g = d.data();
+                const isOwner = g.dev === user;
                 grid.innerHTML += `
                     <div class="game-card">
-                        <div class="age-badge">${g.age}+</div>
-                        <img src="${g.img}" class="game-thumb" onclick="showDetails('${g.id}')">
-                        <div class="game-info">
+                        <img src="${g.img}" class="game-thumb" onclick="window.open('${g.link}')">
+                        <div style="padding:15px">
                             <h3>${g.title}</h3>
-                            <p style="font-size:0.8rem; opacity:0.6">@${g.dev} | ❤️ ${g.likes || 0}</p>
+                            <p style="font-size:0.8rem; opacity:0.6">Par @${g.dev}</p>
+                            <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center">
+                                <button class="btn btn-outline" onclick="likeGame('${d.id}')">❤️ ${g.likes || 0}</button>
+                                <span style="cursor:pointer; color:#ff7675; font-size:0.8rem" onclick="report('${d.id}', '${g.title}')">🚩</span>
+                                ${isOwner ? `<button class="btn btn-danger" style="padding:4px 8px" onclick="deleteGame('${d.id}')">🗑️</button>` : ''}
+                            </div>
                         </div>
                     </div>`;
             });
         };
 
-        window.showDetails = (id) => {
-            const g = allGames.find(x => x.id === id);
-            document.getElementById('detailContent').innerHTML = `
-                <img src="${g.img}" style="width:100%; border-radius:15px; margin-bottom:15px">
-                <div style="display:flex; justify-content:space-between; align-items:start">
-                    <h2>${g.title}</h2>
-                    <span class="report-link" onclick="reportGame('${g.id}', '${g.title}')">🚩 Signaler</span>
-                </div>
-                <p style="margin:10px 0; opacity:0.8">${g.desc}</p>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px">
-                    <a href="${g.play}" target="_blank" class="btn btn-accent">🎮 JOUER</a>
-                    <div style="cursor:pointer; font-size:1.2rem" onclick="likeGame('${g.id}')">❤️ ${g.likes || 0}</div>
-                </div>
-                <button class="btn btn-outline" style="width:100%; margin-top:15px" onclick="closeModal('detailModal')">Fermer</button>`;
-            openModal('detailModal');
-        };
-
         window.likeGame = async (id) => {
-            if(localStorage.getItem('liked_'+id)) return alert("Déjà liké !");
+            if(localStorage.getItem('L_'+id)) return;
             await updateDoc(doc(db, "games", id), { likes: increment(1) });
-            localStorage.setItem('liked_'+id, "true");
-            location.reload();
+            localStorage.setItem('L_'+id, true); loadGames();
         };
 
-        window.reportGame = async (id, title) => {
-            const reason = prompt(`Pourquoi souhaites-tu signaler "${title}" ?`);
-            if(!reason) return;
-            
-            try {
-                await addDoc(collection(db, "reports"), {
-                    gameId: id,
-                    gameTitle: title,
-                    reason: reason,
-                    reportedBy: localStorage.getItem('z_name') || "Anonyme",
-                    date: new Date()
-                });
-                alert("✅ Merci, le signalement a été envoyé.");
-            } catch (err) {
-                alert("Erreur lors du signalement.");
+        window.deleteGame = async (id) => {
+            if(confirm("Supprimer définitivement ce jeu ?")) {
+                await deleteDoc(doc(db, "games", id));
+                loadGames();
             }
         };
 
-        document.getElementById('userPseudo').value = localStorage.getItem('z_name') || "";
-        document.getElementById('userAge').value = localStorage.getItem('z_age') || 13;
+        window.report = async (id, name) => {
+            const r = prompt("Raison du signalement pour " + name + "?");
+            if(r) {
+                await addDoc(collection(db, "reports"), { gameId: id, gameName: name, reason: r, date: new Date() });
+                alert("Signalement envoyé.");
+            }
+        };
+
+        // --- FIREBASE FORUM ---
+        window.publishPost = async () => {
+            await addDoc(collection(db, "posts"), { 
+                title: document.getElementById('fTitle').value, 
+                content: document.getElementById('fContent').value, 
+                author: user, date: new Date() 
+            });
+            closeModal('forumModal'); loadPosts();
+        };
+
+        window.loadPosts = async () => {
+            const snap = await getDocs(query(collection(db, "posts"), orderBy("date", "desc")));
+            const list = document.getElementById('forumList'); list.innerHTML = "";
+            snap.forEach(d => {
+                const p = d.data();
+                list.innerHTML += `<div style="background:var(--card-bg); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1)">
+                    <h3 style="color:var(--accent)">${p.title}</h3><p>${p.content}</p>
+                    <small style="opacity:0.5">@${p.author}</small></div>`;
+            });
+        };
+
+        window.saveProfile = () => { localStorage.setItem('z_name', document.getElementById('uName').value); location.reload(); };
+        document.getElementById('uName').value = user;
         loadGames();
     </script>
 </body>

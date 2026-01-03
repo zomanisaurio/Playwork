@@ -50,7 +50,6 @@
         .btn-outline { background: var(--glass); color: white; border: 1px solid rgba(255,255,255,0.1); }
         input, textarea, select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 12px; color: white; margin-top: 8px; outline: none; }
         .hidden { display: none; }
-        .lock-msg { text-align: center; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -59,7 +58,7 @@
         <div class="nav-wrapper">
             <div class="logo" onclick="location.reload()">ZOMANI PLAYWORK</div>
             <div class="action-bar">
-                <button class="btn btn-outline" onclick="openModal('profileModal')">👤 Profil</button>
+                <button class="btn btn-outline" id="userBtn" onclick="openModal('profileModal')">👤 Profil</button>
                 <button class="btn btn-outline" onclick="openModal('studioModal')">🛠️ Studio</button>
                 <button class="btn btn-accent" onclick="openModal('gameModal')">🚀 Publier</button>
             </div>
@@ -87,9 +86,9 @@
                 <div id="forumList"></div>
             </div>
             <div id="forumLocked" class="hidden">
-                <div class="lock-msg">
+                <div style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:20px;">
                     <h2>🚫 Accès restreint</h2>
-                    <p style="margin-top:10px; opacity:0.7;">Tu dois avoir au moins 13 ans pour accéder aux forums.</p>
+                    <p style="margin-top:10px; opacity:0.7;">Tu dois être connecté et avoir 13+ ans pour voir les forums.</p>
                 </div>
             </div>
         </div>
@@ -97,16 +96,22 @@
 
     <div class="modal" id="profileModal">
         <div class="modal-content">
-            <h2>Mon Profil</h2>
-            <label>Pseudo :</label>
-            <input type="text" id="uName">
-            <label>Âge :</label>
-            <input type="number" id="uAge">
-            <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="saveProfile()">Enregistrer</button>
-            <hr style="margin:20px 0; opacity:0.1">
-            <button class="btn btn-outline" style="width:100%" onclick="exportAccount()">📤 Exporter Compte (JSON)</button>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="document.getElementById('impAcc').click()">📥 Importer Compte (JSON)</button>
-            <input type="file" id="impAcc" hidden onchange="importAccount(event)">
+            <div id="loggedOutUI">
+                <h2>Connexion / Inscription</h2>
+                <input type="text" id="uNameInput" placeholder="Pseudo">
+                <input type="password" id="uPassInput" placeholder="Mot de passe">
+                <input type="number" id="uAgeInput" placeholder="Ton âge (ex: 14)">
+                <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="handleAuth()">Se connecter / S'inscrire</button>
+            </div>
+            <div id="loggedInUI" class="hidden">
+                <h2>Mon Profil</h2>
+                <p id="displayUser" style="font-weight:800; color:var(--accent);"></p>
+                <p id="displayAge" style="opacity:0.7; font-size:0.9rem; margin-bottom:15px;"></p>
+                <button class="btn btn-outline" style="width:100%" onclick="exportAccount()">📤 Exporter Compte (JSON)</button>
+                <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="document.getElementById('impAcc').click()">📥 Importer Compte (JSON)</button>
+                <input type="file" id="impAcc" hidden onchange="importAccount(event)">
+                <button class="btn btn-danger" style="width:100%; margin-top:20px; background:#ff4757; color:white;" onclick="logout()">Se déconnecter</button>
+            </div>
             <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('profileModal')">Fermer</button>
         </div>
     </div>
@@ -134,9 +139,7 @@
             <form id="gameForm">
                 <input type="text" id="gTitle" placeholder="Titre" required>
                 <textarea id="gDesc" placeholder="Description" required></textarea>
-                <select id="gAge">
-                    <option value="3">PEGI 3</option><option value="12">PEGI 12</option><option value="16">PEGI 16</option><option value="18">PEGI 18</option>
-                </select>
+                <select id="gAge"><option value="3">PEGI 3</option><option value="12">PEGI 12</option><option value="16">PEGI 16</option><option value="18">PEGI 18</option></select>
                 <input type="url" id="gImg" placeholder="Lien image (URL)" required>
                 <input type="url" id="gLink" placeholder="Lien du jeu (URL)" required>
                 <button type="submit" class="btn btn-accent" style="width:100%; margin-top:15px">Mettre en ligne</button>
@@ -169,42 +172,69 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let currentSort = 'recent';
-        let allGames = [];
-        const myAge = parseInt(localStorage.getItem('z_age')) || 0;
-        const myUser = localStorage.getItem('z_name') || "Anonyme";
 
+        // --- AUTH & ACCOUNTS ---
+        let currentUser = JSON.parse(localStorage.getItem('z_session')) || null;
+        let accounts = JSON.parse(localStorage.getItem('z_accounts')) || {};
+
+        window.handleAuth = () => {
+            const name = document.getElementById('uNameInput').value.trim();
+            const pass = document.getElementById('uPassInput').value;
+            const age = document.getElementById('uAgeInput').value;
+
+            if(!name || !pass) return alert("Pseudo et mot de passe requis !");
+
+            if(accounts[name]) {
+                if(accounts[name].pass === pass) {
+                    login(name);
+                } else {
+                    alert("Mauvais mot de passe !");
+                }
+            } else {
+                if(!age) return alert("Précise ton âge pour l'inscription !");
+                accounts[name] = { pass: pass, age: parseInt(age) };
+                localStorage.setItem('z_accounts', JSON.stringify(accounts));
+                login(name);
+            }
+        };
+
+        const login = (name) => {
+            currentUser = { name: name, age: accounts[name].age };
+            localStorage.setItem('z_session', JSON.stringify(currentUser));
+            location.reload();
+        };
+
+        window.logout = () => {
+            localStorage.removeItem('z_session');
+            location.reload();
+        };
+
+        window.updateUI = () => {
+            if(currentUser) {
+                document.getElementById('loggedOutUI').classList.add('hidden');
+                document.getElementById('loggedInUI').classList.remove('hidden');
+                document.getElementById('displayUser').innerText = "@" + currentUser.name;
+                document.getElementById('displayAge').innerText = currentUser.age + " ans";
+                document.getElementById('userBtn').innerText = "👤 " + currentUser.name;
+            }
+        };
+
+        // --- BASICS ---
         window.openModal = (id) => document.getElementById(id).style.display = 'flex';
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 
-        // --- CORRECTION LIEN JEU ---
-        window.openGame = (url) => {
-            if (!url) return alert("Lien invalide");
-            // Ajoute https:// si l'utilisateur l'a oublié
-            let finalUrl = url.trim();
-            if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
-                finalUrl = 'https://' + finalUrl;
-            }
-            window.open(finalUrl, '_blank');
-        };
-
-        // --- COMPTE ---
-        window.saveProfile = () => {
-            localStorage.setItem('z_name', document.getElementById('uName').value);
-            localStorage.setItem('z_age', document.getElementById('uAge').value);
-            location.reload();
-        };
+        // --- JSON COMPTE ---
         window.exportAccount = () => {
-            const data = { n: localStorage.getItem('z_name'), a: localStorage.getItem('z_age') };
-            const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'zomani_account.json'; a.click();
+            const blob = new Blob([JSON.stringify(accounts)], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'zomani_all_accounts.json'; a.click();
         };
         window.importAccount = (e) => {
             const r = new FileReader();
             r.onload = (ev) => {
-                const d = JSON.parse(ev.target.result);
-                localStorage.setItem('z_name', d.n); localStorage.setItem('z_age', d.a);
+                accounts = JSON.parse(ev.target.result);
+                localStorage.setItem('z_accounts', JSON.stringify(accounts));
+                alert("Comptes importés ! Connecte-toi.");
                 location.reload();
             };
             r.readAsText(e.target.files[0]);
@@ -217,7 +247,7 @@
         };
         window.exportStudio = () => {
             const blob = new Blob([JSON.stringify({code: document.getElementById('codeEditor').value})], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'studio_project.json'; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'project.json'; a.click();
         };
         window.importStudio = (e) => {
             const r = new FileReader();
@@ -225,15 +255,84 @@
             r.readAsText(e.target.files[0]);
         };
 
-        // --- NAVIGATION & FORUM ---
+        // --- JEUX ---
+        let allGames = [];
+        let currentSort = 'recent';
+        window.openGame = (url) => {
+            if(!url) return;
+            let fUrl = url.trim();
+            if(!fUrl.startsWith('http')) fUrl = 'https://' + fUrl;
+            window.open(fUrl, '_blank');
+        };
+
+        document.getElementById('gameForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if(!currentUser) return alert("Connecte-toi d'abord !");
+            await addDoc(collection(db, "games"), {
+                title: document.getElementById('gTitle').value,
+                desc: document.getElementById('gDesc').value,
+                age: document.getElementById('gAge').value,
+                img: document.getElementById('gImg').value,
+                link: document.getElementById('gLink').value,
+                dev: currentUser.name, likes: 0, createdAt: new Date()
+            });
+            location.reload();
+        };
+
+        window.renderGames = () => {
+            const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
+            const term = document.getElementById('gameSearch').value.toLowerCase();
+            const myAge = currentUser ? currentUser.age : 0;
+            let list = allGames.filter(g => g.title.toLowerCase().includes(term));
+            
+            list.sort((a,b) => currentSort === 'recent' ? (b.createdAt?.seconds - a.createdAt?.seconds) : (b.likes - a.likes));
+
+            list.forEach(g => {
+                if(myAge < parseInt(g.age)) return;
+                grid.innerHTML += `<div class="game-card">
+                    <div class="age-badge">${g.age}+</div>
+                    <img src="${g.img}" class="game-thumb" onclick="openGame('${g.link}')">
+                    <div style="padding:15px">
+                        <h3>${g.title}</h3><p style="opacity:0.6;font-size:0.8rem;">@${g.dev}</p>
+                        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                            <button class="btn btn-outline" onclick="likeGame('${g.id}')">❤️ ${g.likes || 0}</button>
+                            <span onclick="report('${g.id}','${g.title}')" style="cursor:pointer">🚩</span>
+                            ${currentUser && g.dev === currentUser.name ? `<button class="btn btn-outline" style="color:#ff4757" onclick="delGame('${g.id}')">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            });
+        };
+
+        window.loadGames = async () => {
+            const snap = await getDocs(collection(db, "games"));
+            allGames = []; snap.forEach(d => allGames.push({id: d.id, ...d.data()}));
+            renderGames();
+        };
+
+        window.likeGame = async (id) => {
+            if(!currentUser || localStorage.getItem('L_'+id)) return;
+            await updateDoc(doc(db, "games", id), { likes: increment(1) });
+            localStorage.setItem('L_'+id, true); loadGames();
+        };
+
+        window.delGame = async (id) => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "games", id)); loadGames(); } };
+
+        window.switchSort = (s) => {
+            currentSort = s;
+            document.getElementById('tabRecent').classList.toggle('active', s === 'recent');
+            document.getElementById('tabPopular').classList.toggle('active', s === 'popular');
+            renderGames();
+        };
+
+        // --- FORUM ---
         window.showSection = (s) => {
             document.getElementById('sectionGames').classList.toggle('hidden', s !== 'games');
             document.getElementById('sectionForums').classList.toggle('hidden', s !== 'forums');
             document.getElementById('btnGames').classList.toggle('active', s === 'games');
             document.getElementById('btnForums').classList.toggle('active', s === 'forums');
-            
             if(s === 'forums') {
-                if(myAge < 13) {
+                if(!currentUser || currentUser.age < 13) {
                     document.getElementById('forumContent').classList.add('hidden');
                     document.getElementById('forumLocked').classList.remove('hidden');
                 } else {
@@ -244,80 +343,11 @@
             }
         };
 
-        // --- JEUX ---
-        document.getElementById('gameForm').onsubmit = async (e) => {
-            e.preventDefault();
-            await addDoc(collection(db, "games"), {
-                title: document.getElementById('gTitle').value,
-                desc: document.getElementById('gDesc').value,
-                age: document.getElementById('gAge').value,
-                img: document.getElementById('gImg').value,
-                link: document.getElementById('gLink').value,
-                dev: myUser, likes: 0, createdAt: new Date()
-            });
-            location.reload();
-        };
-
-        window.switchSort = (s) => {
-            currentSort = s;
-            document.getElementById('tabRecent').classList.toggle('active', s === 'recent');
-            document.getElementById('tabPopular').classList.toggle('active', s === 'popular');
-            renderGames();
-        };
-
-        window.loadGames = async () => {
-            const snap = await getDocs(collection(db, "games"));
-            allGames = []; snap.forEach(d => allGames.push({id: d.id, ...d.data()}));
-            renderGames();
-        };
-
-        window.renderGames = () => {
-            const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
-            const term = document.getElementById('gameSearch').value.toLowerCase();
-            let list = allGames.filter(g => g.title.toLowerCase().includes(term));
-            
-            if(currentSort === 'recent') list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            else list.sort((a,b) => (b.likes || 0) - (a.likes || 0));
-
-            list.forEach(g => {
-                if(myAge < parseInt(g.age)) return;
-                const isOwner = g.dev === myUser;
-                grid.innerHTML += `
-                    <div class="game-card">
-                        <div class="age-badge">${g.age}+</div>
-                        <img src="${g.img}" class="game-thumb" onclick="openGame('${g.link}')">
-                        <div style="padding:15px">
-                            <h3>${g.title}</h3>
-                            <p style="font-size:0.8rem; opacity:0.6">@${g.dev}</p>
-                            <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center">
-                                <button class="btn btn-outline" onclick="likeGame('${g.id}')">❤️ ${g.likes || 0}</button>
-                                <span style="cursor:pointer" onclick="report('${g.id}','${g.title}')">🚩</span>
-                                ${isOwner ? `<button class="btn btn-outline" style="color:#ff4757" onclick="delGame('${g.id}')">🗑️</button>` : ''}
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        };
-
-        window.likeGame = async (id) => {
-            if(localStorage.getItem('L_'+id)) return;
-            await updateDoc(doc(db, "games", id), { likes: increment(1) });
-            localStorage.setItem('L_'+id, true); loadGames();
-        };
-
-        window.delGame = async (id) => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "games", id)); loadGames(); } };
-
-        window.report = async (id, t) => {
-            const r = prompt("Raison du signalement pour "+t+"?");
-            if(r) await addDoc(collection(db, "reports"), { gameId: id, title: t, reason: r, date: new Date() });
-        };
-
-        // --- FORUM ---
         window.publishPost = async () => {
             await addDoc(collection(db, "posts"), { 
                 title: document.getElementById('fTitle').value, 
                 content: document.getElementById('fContent').value, 
-                author: myUser, date: new Date() 
+                author: currentUser.name, date: new Date() 
             });
             closeModal('forumModal'); loadPosts();
         };
@@ -327,15 +357,12 @@
             const list = document.getElementById('forumList'); list.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                list.innerHTML += `<div style="background:var(--card-bg); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1)">
-                    <h3 style="color:var(--accent)">${p.title}</h3><p>${p.content}</p>
-                    <small style="opacity:0.5">@${p.author} • ${p.date?.toDate().toLocaleDateString()}</small></div>`;
+                list.innerHTML += `<div style="background:var(--card-bg); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid var(--glass)">
+                    <h3 style="color:var(--accent)">${p.title}</h3><p>${p.content}</p><small>@${p.author}</small></div>`;
             });
         };
 
-        // Init
-        document.getElementById('uName').value = myUser !== "Anonyme" ? myUser : "";
-        document.getElementById('uAge').value = myAge || 13;
+        updateUI();
         loadGames();
     </script>
 </body>
